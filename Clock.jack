@@ -1,0 +1,119 @@
+class Clock {
+    static int totalSeconds;
+    static String timeString;
+
+    function void initialize() {
+        let totalSeconds = 0;
+        let timeString = String.new();
+        do timeString.setInt(0);
+        do Clock.updateTimeString();
+        do Clock.draw();
+        return;
+    }
+
+    function void updateTimeString() {
+        var int minutes, seconds;
+        var char zero;
+        var char colon;
+        let minutes = totalSeconds / 60;
+        let seconds = totalSeconds - (minutes * 60);
+
+        do timeString.setInt(minutes);
+        if (minutes < 10) {
+            let zero = 48; // ASCII код '0'
+            do timeString.insertChar(0, zero);
+        }
+        let colon = 58; // ASCII код ':'
+        do timeString.appendChar(colon);
+        if (seconds < 10) {
+            let zero = 48; // ASCII код '0'
+            do timeString.appendChar(zero);
+        }
+        do timeString.appendInt(seconds);
+        return;
+    }
+
+    function void draw() {
+        var int x, y;
+        let x = (Screen.width() - timeString.length() * 8) / 2;
+        let y = Screen.height() / 2;
+        do Screen.clearScreen();
+        do Screen.drawString(timeString, x, y);
+        return;
+    }
+
+    function void handleDigitInput(int digit) {
+        let totalSeconds = (totalSeconds * 10) + digit; // Обращаемся к totalSeconds напрямую
+        if (totalSeconds < 6000) { // Обращаемся к totalSeconds напрямую
+            do Clock.updateTimeString();
+            do Clock.draw();
+        } else {
+            let totalSeconds = totalSeconds / 10; // Обращаемся к totalSeconds напрямую
+        }
+        return;
+    }
+
+    function boolean handleEnter() {
+        return true; // Сигнализируем о завершении ввода
+    }
+
+    function void handleInput() {
+        var int key;
+        var boolean readingInput;
+        var int enterKey;
+        let enterKey = 128;
+        let readingInput = true;
+        let key = 0; // Явная инициализация key
+
+        while (readingInput) {
+            let key = Keyboard.keyPressed();
+            if (key > 47 and key < 58) { // Цифры 0-9
+                do Clock.handleDigitInput(key - 48);
+            } else {
+                if (key = enterKey) { // Enter key
+                    let readingInput = false;
+                }
+            }
+            do Sys.wait(50);
+        }
+        return;
+    }
+
+    function void runTimer() {
+        var int x, y, i;
+        let x = (Screen.width() - 10 * 8) / 2; // "Время вышло!" - 10 символов
+        let y = Screen.height() / 2;
+        let i = 0;
+
+        while (totalSeconds > 0) {
+            do Clock.updateTimeString();
+            do Clock.draw();
+            do Sys.wait(1000);
+            let totalSeconds = totalSeconds - 1;
+        }
+        do Screen.clearScreen();
+        while (i < 10) {
+            if (i = 0) { do Screen.drawChar(x + (i * 8), y, 226); } // В
+            if (i = 1) { do Screen.drawChar(x + (i * 8), y, 186); } // р
+            if (i = 2) { do Screen.drawChar(x + (i * 8), y, 235); } // е
+            if (i = 3) { do Screen.drawChar(x + (i * 8), y, 181); } // м
+            if (i = 4) { do Screen.drawChar(x + (i * 8), y, 229); } // я
+            if (i = 5) { do Screen.drawChar(x + (i * 8), y, 32);  } // пробел
+            if (i = 6) { do Screen.drawChar(x + (i * 8), y, 188); } // в
+            if (i = 7) { do Screen.drawChar(x + (i * 8), y, 236); } // ы
+            if (i = 8) { do Screen.drawChar(x + (i * 8), y, 248); } // ш
+            if (i = 9) { do Screen.drawChar(x + (i * 8), y, 237); } // л
+            let i = i + 1;
+        }
+        do Screen.drawChar(x + (i * 8), y, 176); // !
+        return;
+    }
+
+    function void run() {
+        do Clock.initialize();
+        do Clock.draw();
+        do Clock.handleInput();
+        do Clock.runTimer();
+        return;
+    }
+}
